@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("FluentNHibernate.Query")]
-[assembly: AssemblyCopyright("Copyright ©2009 Derick Bailey")]
+[assembly: AssemblyCopyright("Copyright ©2009 Brandon Barry, Derick Bailey")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
