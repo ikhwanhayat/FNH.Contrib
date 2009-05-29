@@ -54,5 +54,14 @@ namespace FluentNHibernate.Query
 
 			return new NHibernateChildQuery<NHibernateChildQueryConjunction<TConj, T>, TV>(conjunction, childCriteria);
 		}
+
+		public TConj EndChild()
+		{
+
+			return Conjunction;
+
+		}
+
 	}
+
 }

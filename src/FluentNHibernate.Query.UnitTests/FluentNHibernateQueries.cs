@@ -82,104 +82,6 @@ namespace FluentNHibernate.Query.UnitTests
 
 		[TestFixture]
 		[Concern("Creating an NHibernate Query")]
-		public class When_getting_one_with_one_restriction : ContextSpecification
-		{
-			private A result;
-			private ICriteria criteria;
-
-			protected override void Context()
-			{
-				criteria = MockRepository.GenerateMock<ICriteria>();
-				criteria.Expect(c => c.SetMaxResults(1)).Return(criteria);
-				criteria.Expect(c => c.List<A>()).Return(new[] { new A() });
-
-				ISession session = MockRepository.GenerateMock<ISession>();
-				session.Expect(s => s.CreateCriteria(typeof(A))).Return(criteria);
-
-				result = session.GetOne<A>().Where(a => a.ABC).IsEqualTo("abc").Execute();
-			}
-
-			[Test]
-			[Observation]
-			public void Should_return_a_result()
-			{
-				result.ShouldNotBeNull();
-			}
-
-			[Test]
-			[Observation]
-			public void Should_add_one_restriction()
-			{
-				criteria.AssertWasCalled(c => c.Add(null), o => o.IgnoreArguments().Repeat.Once());
-			}
-		}
-
-		[TestFixture]
-		[Concern("Creating an NHibernate Query")]
-		public class When_getting_one_with_one_restriction_and_no_results : ContextSpecification
-		{
-			private A result;
-			private ICriteria criteria;
-
-			protected override void Context()
-			{
-				criteria = MockRepository.GenerateMock<ICriteria>();
-				criteria.Expect(c => c.SetMaxResults(1)).Return(criteria);
-				criteria.Expect(c => c.List<A>()).Return(new A[0]);
-
-				ISession session = MockRepository.GenerateMock<ISession>();
-				session.Expect(s => s.CreateCriteria(typeof(A))).Return(criteria);
-
-				result = session.GetOne<A>().Where(a => a.ABC).IsEqualTo("abc").Execute();
-			}
-
-			[Test]
-			[Observation]
-			public void Should_return_no_result()
-			{
-				result.ShouldBeNull();
-			}
-
-			[Test]
-			[Observation]
-			public void Should_add_one_restriction()
-			{
-				criteria.AssertWasCalled(c => c.Add(null), o => o.IgnoreArguments().Repeat.Once());
-			}
-		}
-
-		[TestFixture]
-		[Concern("Creating an NHibernate Query")]
-		public class When_getting_one_with_multiple_restriction : ContextSpecification
-		{
-			private ICriteria criteria;
-
-			protected override void Context()
-			{
-				criteria = MockRepository.GenerateMock<ICriteria>();
-				criteria.Expect(c => c.SetMaxResults(1)).Return(criteria);
-				criteria.Expect(c => c.List<A>()).Return(new[] { new A() });
-
-				ISession session = MockRepository.GenerateMock<ISession>();
-				session.Expect(s => s.CreateCriteria(typeof(A))).Return(criteria);
-
-				session.GetOne<A>()
-					.Where(a => a.DEF).IsLessThan(3)
-					.And(a => a.DEF).IsGreaterThan(0)
-					.And(a => a.ABC).IsNull()
-					.Execute();
-			}
-
-			[Test]
-			[Observation]
-			public void Should_add_three_restrictions()
-			{
-				criteria.AssertWasCalled(c => c.Add(null), o => o.IgnoreArguments().Repeat.Times(3));
-			}
-		}
-
-		[TestFixture]
-		[Concern("Creating an NHibernate Query")]
 		public class When_getting_one_with_criteria_on_a_child_object : ContextSpecification
 		{
 			private ICriteria criteria;
@@ -644,5 +546,75 @@ namespace FluentNHibernate.Query.UnitTests
 				result.ShouldEqual(8);
 			}
 		}
+
+		[TestFixture]
+		[Concern("Creating an NHibernate Query")]
+		public class When_getting_one_with_a_specific_child : ContextSpecification
+		{
+			private A result;
+			private ICriteria criteria;
+
+			protected override void Context()
+			{
+				criteria = MockRepository.GenerateMock<ICriteria>();
+				criteria.Expect(c => c.SetMaxResults(1)).Return(criteria);
+				criteria.Expect(c => c.List<A>()).Return(new[] { new A() });
+
+				ISession session = MockRepository.GenerateMock<ISession>();
+				session.Expect(s => s.CreateCriteria(typeof(A))).Return(criteria);
+
+				result = session.GetOne<A>().ThatHasChild(a => a.B).EndChild().Execute();
+			}
+
+			[Test]
+			[Observation]
+			public void Should_return_a_result()
+			{
+				result.ShouldNotBeNull();
+			}
+
+			[Test]
+			[Observation]
+			public void Should_create_the_child_criteria()
+			{
+				criteria.AssertWasCalled(c => c.CreateCriteria(null), o => o.IgnoreArguments().Repeat.Once());
+			}
+		}
+
+		[TestFixture]
+		[Concern("Creating an NHibernate Query")]
+		public class When_getting_all_with_a_specific_child : ContextSpecification
+		{
+			private IList<A> result;
+			private ICriteria criteria;
+
+			protected override void Context()
+			{
+				criteria = MockRepository.GenerateMock<ICriteria>();
+				criteria.Expect(c => c.SetMaxResults(1)).Return(criteria);
+				criteria.Expect(c => c.List<A>()).Return(new[] { new A() });
+
+				ISession session = MockRepository.GenerateMock<ISession>();
+				session.Expect(s => s.CreateCriteria(typeof(A))).Return(criteria);
+
+				result = session.GetAll<A>().ThatHasChild(a => a.B).EndChild().Execute();
+			}
+
+			[Test]
+			[Observation]
+			public void Should_return_a_result()
+			{
+				result.ShouldNotBeNull();
+			}
+
+			[Test]
+			[Observation]
+			public void Should_create_the_child_criteria()
+			{
+				criteria.AssertWasCalled(c => c.CreateCriteria(null), o => o.IgnoreArguments().Repeat.Once());
+			}
+		}
+
 	}
+
 }

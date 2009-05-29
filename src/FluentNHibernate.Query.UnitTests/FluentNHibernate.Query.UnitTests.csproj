@@ -67,6 +67,8 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\A.cs" />
@@ -74,6 +76,7 @@
     <Compile Include="Model\C.cs" />
     <Compile Include="FluentNHibernateQueries.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RestrictionSpecs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FluentNHibernate.Query\FluentNHibernate.Query.csproj">

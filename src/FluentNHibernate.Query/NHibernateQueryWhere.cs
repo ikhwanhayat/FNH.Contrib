@@ -19,7 +19,7 @@ namespace FluentNHibernate.Query
 	public abstract class NHibernateQueryWhere<T, TV>
 	{
 		protected ICriteria Criteria { get; private set; }
-		protected PropertyInfo PropertyInfo { get; private set; }
+		private PropertyInfo PropertyInfo { get; set; }
 
 		internal protected NHibernateQueryWhere(ICriteria criteria, PropertyInfo propertyInfo)
 		{
@@ -98,5 +98,25 @@ namespace FluentNHibernate.Query
 
 			return GetConjunction();
 		}
+
+		public T IsLike(TV value)
+		{
+
+			Criteria.Add(Restrictions.Like(PropertyInfo.Name, value));
+
+			return GetConjunction();
+
+		}
+
+		public T IsLikeInsensitive(TV value)
+		{
+
+			Criteria.Add(Restrictions.InsensitiveLike(PropertyInfo.Name, value));
+
+			return GetConjunction();
+
+		}
+
 	}
+
 }
