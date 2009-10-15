@@ -22,23 +22,47 @@ namespace FluentNHibernate.Query
 		{
 			TRt rt;
 
-			if (typeof(TRt).Equals(typeof(T)))
-			{
-				IList<TRt> results = Criteria.SetMaxResults(1).List<TRt>();
+            if (typeof(TRt).Equals(typeof(T)))
+            {
+                IList<TRt> results = Criteria.SetMaxResults(1).List<TRt>();
 
-				if (results.Count > 0)
-					rt = results[0];
-				else
-					rt = default(TRt);
-			}
-			else if (typeof(TRt).Equals(typeof(int)))
-			{
-				rt = Criteria.SetProjection(Projections.RowCount()).SetMaxResults(1).List<TRt>()[0];
-			}
-			else rt = (TRt)Criteria.List<T>();
+                if (results.Count > 0)
+                    rt = results[0];
+                else
+                    rt = default(TRt);
+            }
+            else if (typeof(TRt).Equals(typeof(int)))
+            {
+                rt = Criteria.SetProjection(Projections.RowCount()).SetMaxResults(1).List<TRt>()[0];
+            }
+            else
+            {
+                if (maxResults > 0)
+                    Criteria.SetMaxResults(maxResults);
+
+                if (firstResult > 0)
+                    Criteria.SetFirstResult(firstResult);
+
+                rt = (TRt)Criteria.List<T>();
+            }
 
 			return rt;
 		}
+
+        private int firstResult = 0;
+        private int maxResults = 0;
+
+        public NHibernateQuery<TRt, T> FirstResult(int firstResult)
+        {
+            this.firstResult = firstResult;
+            return this;
+        }
+
+        public NHibernateQuery<TRt, T> MaxResults(int maxResultsCount)
+        {
+            this.maxResults = maxResultsCount;
+            return this;
+        }
 		
 		public NHibernateQuery<TRt, T> WithFetchModeOn<TV>(Expression<Func<T, TV>> expression, FetchMode fetchMode)
 		{

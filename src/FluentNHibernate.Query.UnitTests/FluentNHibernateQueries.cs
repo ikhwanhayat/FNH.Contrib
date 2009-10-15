@@ -426,7 +426,7 @@ namespace FluentNHibernate.Query.UnitTests
 			protected override void Context()
 			{
 				criteria = MockRepository.GenerateMock<ICriteria>();
-				criteria.Expect(c => c.SetMaxResults(1)).Return(criteria);
+                criteria.Expect(c => c.SetMaxResults(1)).IgnoreArguments().Return(criteria);
 				criteria.Expect(c => c.List<A>()).Return(new[] {new A(), new A()});
 
 				ISession session = MockRepository.GenerateMock<ISession>();
@@ -614,6 +614,76 @@ namespace FluentNHibernate.Query.UnitTests
 				criteria.AssertWasCalled(c => c.CreateCriteria(null), o => o.IgnoreArguments().Repeat.Once());
 			}
 		}
+
+        [TestFixture]
+        [Concern("Creating an NHibernate Query")]
+        public class When_getting_all_with_first_result : ContextSpecification
+        {
+            private IList<A> results;
+            private ICriteria criteria;
+
+            protected override void Context()
+            {
+                criteria = MockRepository.GenerateMock<ICriteria>();
+                criteria.Expect(c => c.SetFirstResult(0)).IgnoreArguments().Return(criteria);
+                criteria.Expect(c => c.SetMaxResults(0)).IgnoreArguments().Return(criteria);
+                criteria.Expect(c => c.List<A>()).Return(new[] { new A(), new A() });
+
+                ISession session = MockRepository.GenerateMock<ISession>();
+                session.Expect(s => s.CreateCriteria(typeof(A))).Return(criteria);
+
+                results = session.GetAll<A>().FirstResult(1).Execute();
+            }
+
+            [Test]
+            [Observation]
+            public void Should_return_some_results()
+            {
+                results.Count.ShouldEqual(2);
+            }
+
+            [Test]
+            [Observation]
+            public void Should_set_first_result()
+            {
+                criteria.AssertWasCalled(c => c.SetFirstResult(0), o => o.IgnoreArguments().Repeat.Once());
+            }
+        }
+
+        [TestFixture]
+        [Concern("Creating an NHibernate Query")]
+        public class When_getting_all_with_max_results : ContextSpecification
+        {
+            private IList<A> results;
+            private ICriteria criteria;
+
+            protected override void Context()
+            {
+                criteria = MockRepository.GenerateMock<ICriteria>();
+                criteria.Expect(c => c.SetFirstResult(0)).IgnoreArguments().Return(criteria);
+                criteria.Expect(c => c.SetMaxResults(0)).IgnoreArguments().Return(criteria);
+                criteria.Expect(c => c.List<A>()).Return(new[] { new A(), new A() });
+
+                ISession session = MockRepository.GenerateMock<ISession>();
+                session.Expect(s => s.CreateCriteria(typeof(A))).Return(criteria);
+
+                results = session.GetAll<A>().MaxResults(2).Execute();
+            }
+
+            [Test]
+            [Observation]
+            public void Should_return_some_results()
+            {
+                results.Count.ShouldEqual(2);
+            }
+
+            [Test]
+            [Observation]
+            public void Should_set_max_results()
+            {
+                criteria.AssertWasCalled(c => c.SetMaxResults(0), o => o.IgnoreArguments().Repeat.Once());
+            }
+        }
 
 	}
 
